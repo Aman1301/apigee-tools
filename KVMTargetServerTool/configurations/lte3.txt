@@ -1,0 +1,3 @@
+HOST=https://api.enterprise.apigee.com
+orgName=paymark
+environment=lte3
