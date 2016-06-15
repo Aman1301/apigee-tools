@@ -1,3 +1,3 @@
 HOST=https://api.enterprise.apigee.com
-orgName=synergy-yawcrc
+orgName=manishsingh
 environment=prod
