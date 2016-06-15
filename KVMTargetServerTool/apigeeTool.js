@@ -200,6 +200,6 @@ function displayKVMList(kvmList) {
 		var createEntry = helper.createKVM(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
 	}
 
-	entry = helper.listKVMENtries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
+	entry = helper.listKVMEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
 	helper.displayKVMEntry(entry);
 }
