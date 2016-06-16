@@ -1,21 +1,24 @@
 var request = require('sync-request');
+
 var config = require('./config');
 var helper = require('./helper');
+var helperKVM = require('./helperKVM');
+var helperTS = require('./helperTargetServer');
+var helperCache = require('./helperCache');
+var helperAnalytics = require('./helperAnalytics');
 
 // Create Server
 var syncPrompt = require('readline-sync');
 var express = require('express');
-var util = require('util');
-var async = require('async');
+var app = express();
+app.listen(3001);
 
 var entry = "";
 var kvmName = "";
 
-var app = express();
-app.listen(3001);
 helper.showMainOptions();
-
 var mainOption = syncPrompt.prompt();
+
 if (mainOption == "1") {
 	console.log("Please provide Environment (Example: dev/stage/prod ): ");
 	var environmentName = syncPrompt.prompt();
@@ -61,21 +64,21 @@ if (mainOption == "1") {
 		if (optionEntered == 1) {
 			console.log("Please type the key you want to search: ");
 			var keyName = syncPrompt.prompt();
-			entry = helper.listKVMEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
-			helper.searchKVMEntry(entry, keyName);
+			entry = helperKVM.listKVMEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
+			helperKVM.searchKVMEntry(entry, keyName);
 		} else if (optionEntered == 2) {
-			var updatedEntry = helper.updateKVMEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
+			var updatedEntry = helperKVM.updateKVMEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
 			if (updatedEntry) {
-				helper.displayKVMEntry(updatedEntry);
+				helperKVM.displayKVMEntry(updatedEntry);
 			}
 		} else if (optionEntered == 3) {
-			var deletedEntry = helper.deleteKVMEntry(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
+			var deletedEntry = helperKVM.deleteKVMEntry(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
 			if (deletedEntry) {
-				entry = helper.listKVMEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
-				helper.displayKVMEntry(entry);
+				entry = helperKVM.listKVMEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
+				helperKVM.displayKVMEntry(entry);
 			}
 		} else if (optionEntered == 4) {
-			var deletedKVM = helper.deleteKVM(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
+			var deletedKVM = helperKVM.deleteKVM(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
 			if (deletedKVM) {
 				displayKVMList(kvmList);
 			}
@@ -144,8 +147,8 @@ if (mainOption == "1") {
 	if (targetServerName == "exit") {
 		process.exit(1);
 	} else {
-		var targetServerDetails = helper.listTargetServerEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, targetServerName);
-		helper.displayTargetServerDetails(targetServerDetails);
+		var targetServerDetails = helperTS.listTargetServerEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, targetServerName);
+		helperTS.displayTargetServerDetails(targetServerDetails);
 
 		while (1) {
 			helper.showTargetServerOptions();
@@ -154,32 +157,37 @@ if (mainOption == "1") {
 			if (optionEntered == 1) {
 				console.log("Please type the target server you want to search: ");
 				targetServerName = syncPrompt.prompt();
-				targetServerDetails = helper.listTargetServerEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, targetServerName);
-				helper.displayTargetServerDetails(targetServerDetails);
+				targetServerDetails = helperTS.listTargetServerEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, targetServerName);
+				helperTS.displayTargetServerDetails(targetServerDetails);
 			} else if (optionEntered == 2) {
-				var createdEntry = helper.createTargetServer(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
+				var createdEntry = helperTS.createTargetServer(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
 				if (createdEntry) {
-					helper.displayTargetServerDetails(createdEntry);
+					helperTS.displayTargetServerDetails(createdEntry);
 				}
 			} else if (optionEntered == 3) {
-				var updatedEntry = helper.updateTargetServer(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
+				var updatedEntry = helperTS.updateTargetServer(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
 				if (updatedEntry) {
-					helper.displayTargetServerDetails(updatedEntry);
+					helperTS.displayTargetServerDetails(updatedEntry);
 				}
 			} else if (optionEntered == 4) {
-				var deletedEntry = helper.deleteTargetServer(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
+				var deletedEntry = helperTS.deleteTargetServer(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
 				if (deletedEntry) {
-					helper.listAllTargetServers(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
+					helperTS.listAllTargetServers(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
 				}
 			} else {
 				console.log("Please Provide valid Option");
 			}
 		}
 	}
+} else if (mainOption == "3") {
+
+} else if (mainOption == "4") {
+
 } else {
 	process.exit(1);
 }
 
+// Utility Functions
 function displayKVMList(kvmList) {
 	console.log("-------- Below are name of Key Value Maps in this environment: --------");
 	console.log("");
@@ -197,9 +205,9 @@ function displayKVMList(kvmList) {
 		console.log("");
 		console.log("Enter the name of new KVM");
 		kvmName = syncPrompt.prompt();
-		var createEntry = helper.createKVM(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
+		var createEntry = helperKVM.createKVM(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
 	}
 
-	entry = helper.listKVMEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
-	helper.displayKVMEntry(entry);
+	entry = helperKVM.listKVMEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
+	helperKVM.displayKVMEntry(entry);
 }
