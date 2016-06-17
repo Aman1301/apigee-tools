@@ -20,29 +20,14 @@ helper.showMainOptions();
 var mainOption = syncPrompt.prompt();
 
 if (mainOption == "1") {
-	console.log("Please provide Environment (Example: dev/stage/prod ): ");
+	console.log("Please provide Environment (Example: dev/stage/prod): ");
 	var environmentName = syncPrompt.prompt();
-
-	console.log("Please Provide Org Admin Username: ");
-	var username = syncPrompt.prompt();
-
-	console.log("Please Provide Org Admin Password: ");
-	var password = syncPrompt.prompt({
-			noEchoBack : true
-		});
-
 	baaSParams = config.baaSParams(environmentName);
-	// console.log("baaSParams : " + JSON.stringify(baaSParams));
-
 	environment = baaSParams.environment;
-	var options = {
-		'headers' : {
-			'Accept' : 'application/json',
-			'Authorization' : 'Basic ' + new Buffer(username + ":" + password).toString('base64')
-		}
-	}
 
+	var options = buildAuthHeader();
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 	var url = baaSParams.HOST + baaSParams.pathPrefix + baaSParams.orgName + '/environments/' + environment + '/keyvaluemaps';
 	// console.log("KVM URL : " + JSON.stringify(url));
 
@@ -52,10 +37,10 @@ if (mainOption == "1") {
 		console.log(new Buffer(res.body).toString());
 		process.exit(1);
 	}
-
 	responsePayload = new Buffer(res.body).toString();
 	kvmList = JSON.parse(responsePayload);
 	displayKVMList(kvmList);
+
 	while (1) {
 		helper.showKVMOptions();
 		var optionEntered = helper.inputMainOptions();
@@ -89,25 +74,12 @@ if (mainOption == "1") {
 		}
 	}
 } else if (mainOption == "2") {
-	console.log("Please provide Environment (Example: dev/stage/prod ): ");
+	console.log("Please provide Environment (Example: dev/stage/prod): ");
 	var environmentName = syncPrompt.prompt();
-
-	console.log("Please Provide Org Admin Username: ");
-	var username = syncPrompt.prompt();
-
-	console.log("Please Provide Org Admin Password: ");
-	var password = syncPrompt.prompt({
-			noEchoBack : true
-		});
-
 	baaSParams = config.baaSParams(environmentName);
 	environment = baaSParams.environment;
-	var options = {
-		'headers' : {
-			'Accept' : 'application/json',
-			'Authorization' : 'Basic ' + new Buffer(username + ":" + password).toString('base64')
-		}
-	}
+
+	var options = buildAuthHeader();
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 	var url = baaSParams.HOST + baaSParams.pathPrefix + baaSParams.orgName + '/environments/' + environment + '/targetservers';
@@ -141,8 +113,8 @@ if (mainOption == "1") {
 	console.log("");
 	console.log("------------------------------------------------------------");
 	console.log("");
+
 	console.log("Enter a Target Server Name From Above List: ");
-	
 	var targetServerName = syncPrompt.prompt();
 	if (targetServerName == "exit") {
 		process.exit(1);
@@ -154,6 +126,7 @@ if (mainOption == "1") {
 			helper.showTargetServerOptions();
 			var optionEntered = helper.inputMainOptions();
 			console.log("Option Provided: " + optionEntered);
+
 			if (optionEntered == 1) {
 				console.log("Please type the target server you want to search: ");
 				targetServerName = syncPrompt.prompt();
@@ -180,14 +153,123 @@ if (mainOption == "1") {
 		}
 	}
 } else if (mainOption == "3") {
+	console.log("Please provide Environment (Example: dev/stage/prod): ");
 
 } else if (mainOption == "4") {
+	console.log("Please provide Environment (Example: dev/stage/prod): ");
+	var environmentName = syncPrompt.prompt();
+	baaSParams = config.baaSParams(environmentName);
 
+	var options = buildAuthHeader();
+	process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+	while (1) {
+		var apiProxyName, appName, developerName;
+		var aggregate, variable, startTime, endTime;
+
+		helper.showAnalyticsOptions();
+		var optionEntered = helper.inputMainOptions();
+		console.log("Option Provided: " + optionEntered);
+
+		if (optionEntered == 1) {
+			// API Proxy Analytics
+			var url = baaSParams.HOST + '/v1/organizations/' + baaSParams.orgName + '/apis';
+			var res = request('GET', url, options);
+			if (res.statusCode != 200) {
+				console.error('Error In Getting API Proxy List');
+				console.log(new Buffer(res.body).toString());
+				process.exit(1);
+			}
+			responsePayload = new Buffer(res.body).toString();
+			helperAnalytics.displayAPIProxyList(JSON.parse(responsePayload));
+
+			console.log("");
+			console.log("Enter a API Proxy Name From Above list or type ALL for all proxies: ");
+			apiProxyName = syncPrompt.prompt();
+			console.log("");
+
+			fetchAnalyticsInputs();
+
+			if (apiProxyName == "all" || apiProxyName == "ALL") {
+				apiProxyName = "apis";
+			}
+			helperAnalytics.fetchAnalytics(baaSParams, options, apiProxyName, aggregate, variable, startTime, endTime);
+
+		} else if (optionEntered == 2) {
+			// Apps Analytics
+			var url = baaSParams.HOST + '/v1/organizations/' + baaSParams.orgName + '/apps?expand=true';
+			var res = request('GET', url, options);
+			if (res.statusCode != 200) {
+				console.error('Error In Getting Application List');
+				console.log(new Buffer(res.body).toString());
+				process.exit(1);
+			}
+			responsePayload = new Buffer(res.body).toString();
+			helperAnalytics.displayAppsList(JSON.parse(responsePayload));
+
+			console.log("");
+			console.log("Enter a Application Name From Above list or type ALL for all Applications: ");
+			appName = syncPrompt.prompt();
+			console.log("");
+
+			fetchAnalyticsInputs();
+
+			if (appName == "all" || appName == "ALL") {
+				appName = "apps";
+			}
+			helperAnalytics.fetchAnalytics(baaSParams, options, appName, aggregate, variable, startTime, endTime);
+
+		} else if (optionEntered == 3) {
+			// Developer Analytics
+			var url = baaSParams.HOST + '/v1/organizations/' + baaSParams.orgName + '/developers?expand=true';
+			var res = request('GET', url, options);
+			if (res.statusCode != 200) {
+				console.error('Error In Getting Developer List');
+				console.log(new Buffer(res.body).toString());
+				process.exit(1);
+			}
+			responsePayload = new Buffer(res.body).toString();
+			helperAnalytics.displayDeveloperList(JSON.parse(responsePayload));
+
+			console.log("");
+			console.log("Enter a Developer Name From Above list or type ALL for all Developers: ");
+			appName = syncPrompt.prompt();
+			console.log("");
+
+			fetchAnalyticsInputs();
+
+			if (appName == "all" || appName == "ALL") {
+				appName = "devs";
+			}
+			helperAnalytics.fetchAnalytics(baaSParams, options, appName, aggregate, variable, startTime, endTime);
+
+		} else {
+			console.log("Please Provide valid Option");
+		}
+	}
 } else {
 	process.exit(1);
 }
 
 // Utility Functions
+function buildAuthHeader() {
+	console.log("Please Provide Org Admin Username: ");
+	var username = syncPrompt.prompt();
+
+	console.log("Please Provide Org Admin Password: ");
+	var password = syncPrompt.prompt({
+			noEchoBack : true
+		});
+
+	var options = {
+		'headers' : {
+			'Accept' : 'application/json',
+			'Authorization' : 'Basic ' + new Buffer(username + ":" + password).toString('base64')
+		}
+	}
+	return options;
+}
+
 function displayKVMList(kvmList) {
 	console.log("-------- Below are name of Key Value Maps in this environment: --------");
 	console.log("");
@@ -197,11 +279,11 @@ function displayKVMList(kvmList) {
 	console.log("");
 	console.log("----------------------------------------------------------------");
 	console.log("");
-	console.log("Enter a KVM Name From Above list OR To create a new KVM type new");
+	console.log("Enter a KVM Name From Above list OR To Create a new KVM, Type NEW");
 	console.log("");
 
 	kvmName = syncPrompt.prompt();
-	if (kvmName == "new") {
+	if (kvmName == "new" || kvmName == "NEW") {
 		console.log("");
 		console.log("Enter the name of new KVM");
 		kvmName = syncPrompt.prompt();
@@ -210,4 +292,30 @@ function displayKVMList(kvmList) {
 
 	entry = helperKVM.listKVMEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, kvmName);
 	helperKVM.displayKVMEntry(entry);
+}
+
+function fetchAnalyticsInputs() {
+	console.log("Enter a Aggregate from (user_count, app_count, message_count, is_error, total_response_time,");
+	console.log("	target_response_time, request_size, response_size, response_processing_latency, request_processing_latency): ");
+	variable = syncPrompt.prompt();
+	console.log("");
+
+	if (variable == "message_count" || variable == "is_error" || variable == "user_count" || variable == "user_count") {
+		console.log("Enter a Aggregate from (sum) or leave it empty: ");
+		aggregate = syncPrompt.prompt();
+		console.log("");
+	}
+	else {
+		console.log("Enter a Aggregate from (avg, min, max, sum): ");
+		aggregate = syncPrompt.prompt();
+		console.log("");
+	}
+
+	console.log("Enter startTime in (MM/DD/YYYY) format: ");
+	startTime = syncPrompt.prompt();
+	console.log("");
+
+	console.log("Enter endTime in (MM/DD/YYYY) format: ");
+	endTime = syncPrompt.prompt();
+	console.log("");
 }

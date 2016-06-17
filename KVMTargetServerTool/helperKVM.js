@@ -18,7 +18,6 @@ exports.displayKVMEntry = function (entry) {
 }
 
 exports.createKVM = function (HOST, pathPrefix, orgName, environment, username, password, kvmName) {
-	//var keyValues = syncPrompt.prompt();
 	var entry = [];
 	var keyValuePayload = '{"name" : "' + kvmName + '", "entry" : ' + JSON.stringify(entry) + '}';
 	var options = {
