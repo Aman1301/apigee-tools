@@ -95,7 +95,7 @@ if (mainOption == "1") {
 	console.log("Please Provide Org Admin Username: ");
 	var username = syncPrompt.prompt();
 
-	console.log("Please Provide Org Admin Password: ");
+	console.log("Please Provide Org Admin Pajhwssword: ");
 	var password = syncPrompt.prompt({
 			noEchoBack : true
 		});
@@ -180,6 +180,96 @@ if (mainOption == "1") {
 		}
 	}
 } else if (mainOption == "3") {
+
+console.log("Please provide Environment (Example: dev/stage/prod ): ");
+	var environmentName = syncPrompt.prompt();
+
+	console.log("Please Provide Org Admin Username: ");
+	var username = syncPrompt.prompt();
+
+	console.log("Please Provide Org Admin Password: ");
+	var password = syncPrompt.prompt({
+			noEchoBack : true
+		});
+
+	baaSParams = config.baaSParams(environmentName);
+	environment = baaSParams.environment;
+	var options = {
+		'headers' : {
+			'Accept' : 'application/json',
+			'Authorization' : 'Basic ' + new Buffer(username + ":" + password).toString('base64')
+		}
+	}
+	process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+	var url = baaSParams.HOST + baaSParams.pathPrefix + baaSParams.orgName + '/environments/' + environment + '/caches';
+
+	var res = request('GET', url, options);
+	if (res.statusCode != 200) {
+		console.error('Error In Getting Cac List');
+		console.log(new Buffer(res.body).toString());
+		process.exit(1);
+	}
+
+	responsePayload = new Buffer(res.body).toString();
+	cachesList = JSON.parse(responsePayload);
+
+	console.log("-------- Below are name of Caches in this environment: --------");
+	console.log("");
+	for (var i = 0; i < cachesList.length; i++) {
+		var options1 = {
+			'headers' : {
+				'content-type' : 'application/json',
+				'Authorization' : 'Basic ' + new Buffer(username + ":" + password).toString('base64')
+			}
+		}
+		var url1 = baaSParams.HOST + baaSParams.pathPrefix + baaSParams.orgName + '/environments/' + environment + '/caches/' + cachesList[i];
+		var getResponse = request('GET', url1, options1);
+		var getResponsePayload = new Buffer(getResponse.body).toString();
+		getResponseJson = JSON.parse(getResponsePayload);
+		console.log("Cache Names :  " + cachesList[i] + " , Host : " + getResponseJson.host);
+	}
+	console.log("");
+	console.log("------------------------------------------------------------");
+	console.log("");
+	console.log("Enter a Cache Name From Above List: ");
+	
+	var cacheName = syncPrompt.prompt();
+	if (cacheName == "exit") {
+		process.exit(1);
+	} else {
+		var cacheDetails = helperCache.listCacheEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, cacheName);
+		helperCache.displayCacheDetails(cacheDetails);
+
+		while (1) {
+			helper.showCacheOptions();
+			var optionEntered = helper.inputMainOptions();
+			console.log("Option Provided: " + optionEntered);
+			if (optionEntered == 1) {
+				console.log("Please type the Cache you want to search: ");
+				cacheName = syncPrompt.prompt();
+				cacheDetails = helperCache.listCacheEntries(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password, cacheName);
+				helperCache.displayCacheDetails(cacheDetails);
+			} else if (optionEntered == 2) {
+				var createdEntry = helperCache.createCache(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
+				if (createdEntry) {
+					helperCache.displayCacheDetails(createdEntry);
+				}
+			} else if (optionEntered == 3) {
+				var updatedEntry = helperCache.updateCache(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
+				if (updatedEntry) {
+					helperCache.displayCacheDetails(updatedEntry);
+				}
+			} else if (optionEntered == 4) {
+				var deletedEntry = helperCache.deleteCache(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
+				if (deletedEntry) {
+					helperCache.listAllCaches(baaSParams.HOST, baaSParams.pathPrefix, baaSParams.orgName, environment, username, password);
+				}
+			} else {
+				console.log("Please Provide valid Option");
+			}
+		}
+	}
 
 } else if (mainOption == "4") {
 

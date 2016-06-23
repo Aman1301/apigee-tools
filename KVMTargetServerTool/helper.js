@@ -42,6 +42,10 @@ exports.showTargetServerOptions = function () {
 
 exports.showCacheOptions = function () {
 	console.log(" Please Select Your Option From Below: ");
+	console.log(" Press 1 for : Searching a Cache.");
+	console.log(" Press 2 for : Add a New Cache.");
+	console.log(" Press 3 for : Update a Cache.");
+	console.log(" Press 4 for : Delete a Cache");
 	console.log(" Type exit for Closing This Application.");
 }
 
