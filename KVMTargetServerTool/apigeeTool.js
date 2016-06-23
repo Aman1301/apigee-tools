@@ -15,6 +15,7 @@ app.listen(3001);
 
 var entry = "";
 var kvmName = "";
+var username, password;
 
 helper.showMainOptions();
 var mainOption = syncPrompt.prompt();
@@ -76,6 +77,7 @@ if (mainOption == "1") {
 } else if (mainOption == "2") {
 	console.log("Please provide Environment (Example: dev/stage/prod): ");
 	var environmentName = syncPrompt.prompt();
+
 	baaSParams = config.baaSParams(environmentName);
 	environment = baaSParams.environment;
 
@@ -155,6 +157,7 @@ if (mainOption == "1") {
 } else if (mainOption == "3") {
 	console.log("Please provide Environment (Example: dev/stage/prod): ");
 	var environmentName = syncPrompt.prompt();
+
 	baaSParams = config.baaSParams(environmentName);
 	environment = baaSParams.environment;
 
@@ -329,10 +332,10 @@ if (mainOption == "1") {
 // Utility Functions
 function buildAuthHeader() {
 	console.log("Please Provide Org Admin Username: ");
-	var username = syncPrompt.prompt();
+	username = syncPrompt.prompt();
 
 	console.log("Please Provide Org Admin Password: ");
-	var password = syncPrompt.prompt({
+	password = syncPrompt.prompt({
 			noEchoBack : true
 		});
 
