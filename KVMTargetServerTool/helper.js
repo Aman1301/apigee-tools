@@ -14,30 +14,30 @@ exports.inputMainOptions = function () {
 
 exports.showMainOptions = function () {
 	console.log(" Please Select Your Option From Below: ");
-	console.log(" Press 1 for : Using KVM Operations .");
-	console.log(" Press 2 for : Using Target Server Operations.");
-	console.log(" Press 3 for : Using Cache Operations .");
-	console.log(" Press 4 for : Using Analytics Operations .");
-	console.log(" Type exit for Closing This Application.");
+	console.log(" Press 1 for : Using KVM Operations");
+	console.log(" Press 2 for : Using Target Server Operations");
+	console.log(" Press 3 for : Using Cache Operations");
+	console.log(" Press 4 for : Using Analytics Operations");
+	console.log(" Type exit for Closing This Application");
 }
 
 exports.showKVMOptions = function () {
 	console.log(" Please Select Your Option From Below: ");
-	console.log(" Press 1 for : Searching a Key /Value .");
-	console.log(" Press 2 for : Add/Update Key /Value Entries.");
-	console.log(" Press 3 for : Deleting a Key.");
-	console.log(" Press 4 for : Deleting the KVM Name.");
-	console.log(" Press 5 for : Switching to another KVM.");
-	console.log(" Type exit for Closing This Application.");
+	console.log(" Press 1 for : Searching for a Key/Value");
+	console.log(" Press 2 for : Add/Update Key/Value Entries");
+	console.log(" Press 3 for : Deleting a Key/Value");
+	console.log(" Press 4 for : Deleting a KVM");
+	console.log(" Press 5 for : Switch to another KVM");
+	console.log(" Type exit for Closing This Application");
 }
 
 exports.showTargetServerOptions = function () {
 	console.log(" Please Select Your Option From Below: ");
-	console.log(" Press 1 for : Searching a Target Server.");
-	console.log(" Press 2 for : Add a New Target Server.");
-	console.log(" Press 3 for : Update a Target Server.");
+	console.log(" Press 1 for : Searching for a Target Server");
+	console.log(" Press 2 for : Add a New Target Server");
+	console.log(" Press 3 for : Update a Target Server");
 	console.log(" Press 4 for : Delete a Target Server");
-	console.log(" Type exit for Closing This Application.");
+	console.log(" Type exit for Closing This Application");
 }
 
 exports.showCacheOptions = function () {
@@ -51,5 +51,8 @@ exports.showCacheOptions = function () {
 
 exports.showAnalyticsOptions = function () {
 	console.log(" Please Select Your Option From Below: ");
-	console.log(" Type exit for Closing This Application.");
+	console.log(" Press 1 for : API Proxy Analytics");
+	console.log(" Press 2 for : Apps Analytics");
+	console.log(" Press 3 for : Developer Analytics");
+	console.log(" Type exit for Closing This Application");
 }
